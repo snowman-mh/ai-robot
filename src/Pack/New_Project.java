@@ -77,22 +77,40 @@ public class New_Project {
 			leftMotor.stop();
 			rightMotor.stop();
 		}
+		
 		public static int getEnvironment(int angle, int rate){
 			int rateSection = (rate + 50) / rateSectionSpace;
-			if(rateSection > 100/rateSectionSpace){
-				rateSection = 100/rateSectionSpace;
+			if(rateSection >= 100/rateSectionSpace){
+				rateSection = 100/rateSectionSpace - 1;
 			}
 			else if(rateSection < 0){
 				rateSection = 0;
 			}
 			int angleSection = (angle - 10) / angleStateSpace;
-			if(angleSection > 20/angleStateSpace){
-				angleSection = 20/angleStateSpace;
+			if(angleSection >= 20/angleStateSpace){
+				angleSection = 20/angleStateSpace - 1;
 			}
 			else if(angleSection < 0){
 				angleSection = 0;
 			}
-			return rateSection * 4 + angleSection;
+			return rateSection * 5 + angleSection;
+		}
+		
+		public static void motorControl(int action){
+			switch(action){
+			case 0:
+				Move(100);
+				break;
+			case 1:
+				Move(-100);
+				break;
+			case 2:
+				break;
+			}
+		}
+		public static int reward(int angle){
+			int reward = 10 - Math.abs(angle - 20);
+			return reward;
 		}
 }
 
