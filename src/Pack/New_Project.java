@@ -15,7 +15,10 @@ public class New_Project {
 	static long t0; //—§‚¿ã‚ª‚éŠJŽnŽžŠÔ‚ð•Û‘¶
 	static long standTime = 0; //—§‚Á‚Ä‚éŽžŠÔ‚ð•Û‘¶
 	static boolean isMoving = false;
+	static int rateSectionSpace = 5;
+	static int angleStateSpace = 5;
 
+	
 
 
 	public static void main(String[] args) {
@@ -73,6 +76,23 @@ public class New_Project {
 			}
 			leftMotor.stop();
 			rightMotor.stop();
+		}
+		public static int getEnvironment(int angle, int rate){
+			int rateSection = (rate + 50) / rateSectionSpace;
+			if(rateSection > 100/rateSectionSpace){
+				rateSection = 100/rateSectionSpace;
+			}
+			else if(rateSection < 0){
+				rateSection = 0;
+			}
+			int angleSection = (angle - 10) / angleStateSpace;
+			if(angleSection > 20/angleStateSpace){
+				angleSection = 20/angleStateSpace;
+			}
+			else if(angleSection < 0){
+				angleSection = 0;
+			}
+			return rateSection * 4 + angleSection;
 		}
 }
 
