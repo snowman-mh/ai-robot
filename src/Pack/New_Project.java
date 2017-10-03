@@ -19,13 +19,14 @@ public class New_Project {
 	static int rateSectionSpace = 5;
 	static int angleStateSpace = 5;
 	static Learning learning = new Learning();
-
-
-
+	static int numOfAction = 3;
+	static int numOfState = 100;
+	static int middleRange = 90;
+	static int moveRange = 20;
 
 	public static void main(String[] args) {
 
-		learning.initQ(100,3);
+		learning.initQ(numOfState,numOfAction);
 		gyroSensor.reset();
 		int i = 0;
 		while(i<2000){
@@ -100,9 +101,9 @@ public class New_Project {
 		else if(rateSection < 0){
 			rateSection = 0;
 		}
-		int angleSection = (int)((angle - 10) / angleStateSpace);
-		if(angleSection >= 20/angleStateSpace){
-			angleSection = 20/angleStateSpace - 1;
+		int angleSection = (int)((angle - (middleRange - moveRange/2)) / angleStateSpace);
+		if(angleSection >= moveRange/angleStateSpace){
+			angleSection = moveRange/angleStateSpace - 1;
 		}
 		else if(angleSection < 0){
 			angleSection = 0;
@@ -124,7 +125,7 @@ public class New_Project {
 		}
 	}
 	public static int reward(int angle){
-		int reward = 5 - Math.abs(angle - 20);
+		int reward = 5 - Math.abs(angle - middleRange);
 		return reward;
 	}
 
