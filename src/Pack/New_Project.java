@@ -38,6 +38,9 @@ public class New_Project {
 				finishMove();
 			}
 			else{
+				if(isMoving = false){
+					Delay.msDelay(500);
+				}
 				int currentState = getEnvironment(angleRate[0],angleRate[1]);
 				int previousReward = reward((int)Math.abs(angleRate[0]));
 				int action = learning.getAction(currentState,previousReward);
