@@ -28,13 +28,14 @@ public class New_Project {
 		learning.initQ(100,3);
 		gyroSensor.reset();
 		int i = 0;
-		while(i<900){
+		while(i<2000){
 			LCD.drawString("standTime : " + standTime , 1, 0);
 			LCD.refresh();
 			float[] angleRate = getAngleRate();			
 
 			if(Math.abs(angleRate[0]) > 30 || Math.abs(angleRate[0]) < 10){
 				stopMove();
+				finishMove();
 			}
 			else{
 				int currentState = getEnvironment(angleRate[0],angleRate[1]);
@@ -42,7 +43,7 @@ public class New_Project {
 				int action = learning.getAction(currentState,previousReward);
 				motorControl(action);
 			}
-			Delay.msDelay(100);
+			Delay.msDelay(10);
 			i++;
 		}
 		System.exit(0);
@@ -75,11 +76,15 @@ public class New_Project {
 			rightMotor.backward();
 		}
 	}
-	public static void stopMove(){
+
+	public static void finishMove(){
 		if(isMoving == true){
 			standTime = System.currentTimeMillis() - t0;
 			isMoving = false;
 		}
+	}
+
+	public static void stopMove(){
 		leftMotor.stop();
 		rightMotor.stop();
 	}
@@ -105,12 +110,13 @@ public class New_Project {
 	public static void motorControl(int action){
 		switch(action){
 		case 0:
-			Move(100);
+			Move(300);
 			break;
 		case 1:
-			Move(-100);
+			Move(-300);
 			break;
 		case 2:
+			stopMove();
 			break;
 		}
 	}

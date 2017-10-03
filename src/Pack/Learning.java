@@ -23,12 +23,11 @@ public class Learning {
 				maxQAction = i;
 			}
 		}
-		int action = (int)(Math.random()*2);
 		//QílÇÃçXêV
 		float previousQ = Q[previousState][previousAction];
-		Q[previousState][previousAction] = (1-alpha)*previousQ + alpha * (previousReward + gamma * previousQ);
+		Q[previousState][previousAction] = (1-alpha)*previousQ + alpha * (previousReward + gamma * maxQ);
 		previousState = state;
-		previousAction = action;
+		previousAction = maxQAction;
 		return maxQAction;
 	}
 
