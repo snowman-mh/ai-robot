@@ -1,4 +1,5 @@
 package Pack;
+import lejos.hardware.lcd.LCD;
 
 import java.util.Arrays;
 
@@ -17,8 +18,10 @@ public class Learning {
 
 		int maxQAction = 0;
 		float maxQ = Q[state][0];
-		for(int i = 1; i < Q[state].length; i++){
-			if(Q[state][i] >= maxQ){
+		for(int i = 0; i < Q[state].length; i++){
+			LCD.drawString("action " + i + ": " + Q[state][i] , 1, i + 5);
+			LCD.refresh();
+			if(Q[state][i] > maxQ){
 				maxQ = Q[state][i];
 				maxQAction = i;
 			}

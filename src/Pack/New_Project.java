@@ -1,6 +1,7 @@
 package Pack;
 import Pack.Learning;
 import lejos.hardware.lcd.LCD;
+import lejos.hardware.Button;
 import lejos.hardware.port.SensorPort;
 import lejos.hardware.sensor.EV3GyroSensor;
 import lejos.hardware.sensor.SensorMode;
@@ -24,14 +25,14 @@ public class New_Project {
 	static int middleAngle = 90;
 	static int moveAngle = 20;
 	static MovePilot pilot = new MovePilot(6.88,10.3,Motor.B,Motor.D);
-	static int delayMs = 100;
+	static int delayMs = 10;
 
 	public static void main(String[] args) {
 
 		learning.initQ(numOfState,numOfAction);
 		gyroSensor.reset();
 		int i = 0;
-		while(i<2500){
+		while(Button.ESCAPE.isUp()){
 			LCD.drawString("standTime : " + standTime , 1, 0);
 			LCD.refresh();
 			float[] angleRate = getAngleRate();			
@@ -47,9 +48,12 @@ public class New_Project {
 				int currentState = getEnvironment(angleRate[0],angleRate[1]);
 				int previousReward = reward((int)Math.abs(angleRate[0]));
 				int action = learning.getAction(currentState,previousReward);
+				LCD.drawString("action : " + action , 1, 4);
+				LCD.refresh();
 				motorControl(action);
 			}
-			Delay.msDelay(delayMs);
+//			Delay.msDelay(delayMs);
+			//Delay.usDelay(100);
 			i++;
 		}
 		System.exit(0);
@@ -72,18 +76,14 @@ public class New_Project {
 			isMoving = true;
 		}
 		if(speed > 0){
-			pilot.setLinearSpeed((double)speed);
-			long countStartTime = System.currentTimeMillis();
-			while(System.currentTimeMillis() - countStartTime < delayMs){
-				pilot.forward();			
-			}
+			pilot.setAngularSpeed(speed);
+			pilot.forward();
+			//pilot.travel(1,false);
 		}
 		else{
-			pilot.setLinearSpeed(-(double)speed);
-			long countStartTime = System.currentTimeMillis();
-			while(System.currentTimeMillis() - countStartTime < delayMs){
-				pilot.backward();		
-			}
+			pilot.setAngularSpeed(-speed);
+			pilot.backward();
+			//pilot.travel(-1,false);
 		}
 	}
 
@@ -130,7 +130,9 @@ public class New_Project {
 		}
 	}
 	public static int reward(int angle){
-		int reward = 5 - Math.abs(angle - middleAngle);
+		int reward = - (5^(Math.abs(angle - middleAngle))) + 5;
+		LCD.drawString("reward : " + reward , 1, 3);
+		LCD.refresh();
 		return reward;
 	}
 
