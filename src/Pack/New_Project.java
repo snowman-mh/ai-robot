@@ -7,11 +7,11 @@ import lejos.hardware.sensor.SensorMode;
 import lejos.hardware.motor.Motor;
 import lejos.robotics.RegulatedMotor;
 import lejos.utility.Delay;
+import lejos.robotics.navigation.MovePilot;
 
 public class New_Project {
 
-	static RegulatedMotor leftMotor = Motor.B; 
-	static RegulatedMotor rightMotor = Motor.D;
+
 	static EV3GyroSensor gyroSensor = new EV3GyroSensor(SensorPort.S1);
 	static long t0; //óßÇøè„Ç™ÇÈäJénéûä‘Çï€ë∂
 	static long standTime = 0; //óßÇ¡ÇƒÇÈéûä‘Çï€ë∂
@@ -23,13 +23,15 @@ public class New_Project {
 	static int numOfState = 100;
 	static int middleAngle = 90;
 	static int moveAngle = 20;
+	static MovePilot pilot = new MovePilot(6.88,10.3,Motor.B,Motor.D);
+	static int delayMs = 100;
 
 	public static void main(String[] args) {
 
 		learning.initQ(numOfState,numOfAction);
 		gyroSensor.reset();
 		int i = 0;
-		while(i<2000){
+		while(i<2500){
 			LCD.drawString("standTime : " + standTime , 1, 0);
 			LCD.refresh();
 			float[] angleRate = getAngleRate();			
@@ -40,14 +42,14 @@ public class New_Project {
 			}
 			else{
 				if(isMoving = false){
-					Delay.msDelay(500);
+					//Delay.msDelay(5000);
 				}
 				int currentState = getEnvironment(angleRate[0],angleRate[1]);
 				int previousReward = reward((int)Math.abs(angleRate[0]));
 				int action = learning.getAction(currentState,previousReward);
 				motorControl(action);
 			}
-			Delay.msDelay(10);
+			Delay.msDelay(delayMs);
 			i++;
 		}
 		System.exit(0);
@@ -69,15 +71,19 @@ public class New_Project {
 			t0 = System.currentTimeMillis();
 			isMoving = true;
 		}
-		rightMotor.setSpeed(speed);
-		leftMotor.setSpeed(speed);
 		if(speed > 0){
-			rightMotor.forward();
-			leftMotor.forward();
+			pilot.setLinearSpeed((double)speed);
+			long countStartTime = System.currentTimeMillis();
+			while(System.currentTimeMillis() - countStartTime < delayMs){
+				pilot.forward();			
+			}
 		}
 		else{
-			rightMotor.backward();
-			leftMotor.backward();
+			pilot.setLinearSpeed(-(double)speed);
+			long countStartTime = System.currentTimeMillis();
+			while(System.currentTimeMillis() - countStartTime < delayMs){
+				pilot.backward();		
+			}
 		}
 	}
 
@@ -89,8 +95,7 @@ public class New_Project {
 	}
 
 	public static void stopMove(){
-		leftMotor.stop();
-		rightMotor.stop();
+		pilot.stop();
 	}
 
 	public static int getEnvironment(float angle, float rate){
@@ -114,10 +119,10 @@ public class New_Project {
 	public static void motorControl(int action){
 		switch(action){
 		case 0:
-			Move(300);
+			Move(1000);
 			break;
 		case 1:
-			Move(-300);
+			Move(-1000);
 			break;
 		case 2:
 			stopMove();
