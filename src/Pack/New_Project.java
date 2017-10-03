@@ -10,8 +10,8 @@ import lejos.utility.Delay;
 
 public class New_Project {
 
-	static RegulatedMotor leftMotor = Motor.A; 
-	static RegulatedMotor rightMotor = Motor.B;
+	static RegulatedMotor leftMotor = Motor.B; 
+	static RegulatedMotor rightMotor = Motor.D;
 	static EV3GyroSensor gyroSensor = new EV3GyroSensor(SensorPort.S1);
 	static long t0; //—§‚¿ã‚ª‚éŠJŽnŽžŠÔ‚ð•Û‘¶
 	static long standTime = 0; //—§‚Á‚Ä‚éŽžŠÔ‚ð•Û‘¶
@@ -21,8 +21,8 @@ public class New_Project {
 	static Learning learning = new Learning();
 	static int numOfAction = 3;
 	static int numOfState = 100;
-	static int middleRange = 90;
-	static int moveRange = 20;
+	static int middleAngle = 90;
+	static int moveAngle = 20;
 
 	public static void main(String[] args) {
 
@@ -34,7 +34,7 @@ public class New_Project {
 			LCD.refresh();
 			float[] angleRate = getAngleRate();			
 
-			if(Math.abs(angleRate[0]) > 30 || Math.abs(angleRate[0]) < 10){
+			if(Math.abs(angleRate[0]) > middleAngle + moveAngle/2 || Math.abs(angleRate[0]) < middleAngle - moveAngle/2){
 				stopMove();
 				finishMove();
 			}
@@ -69,15 +69,15 @@ public class New_Project {
 			t0 = System.currentTimeMillis();
 			isMoving = true;
 		}
-		leftMotor.setSpeed(speed);
 		rightMotor.setSpeed(speed);
+		leftMotor.setSpeed(speed);
 		if(speed > 0){
-			leftMotor.forward();
 			rightMotor.forward();
+			leftMotor.forward();
 		}
 		else{
-			leftMotor.backward();
 			rightMotor.backward();
+			leftMotor.backward();
 		}
 	}
 
@@ -101,9 +101,9 @@ public class New_Project {
 		else if(rateSection < 0){
 			rateSection = 0;
 		}
-		int angleSection = (int)((angle - (middleRange - moveRange/2)) / angleStateSpace);
-		if(angleSection >= moveRange/angleStateSpace){
-			angleSection = moveRange/angleStateSpace - 1;
+		int angleSection = (int)((angle - (middleAngle - moveAngle/2)) / angleStateSpace);
+		if(angleSection >= moveAngle/angleStateSpace){
+			angleSection = moveAngle/angleStateSpace - 1;
 		}
 		else if(angleSection < 0){
 			angleSection = 0;
@@ -125,7 +125,7 @@ public class New_Project {
 		}
 	}
 	public static int reward(int angle){
-		int reward = 5 - Math.abs(angle - middleRange);
+		int reward = 5 - Math.abs(angle - middleAngle);
 		return reward;
 	}
 
