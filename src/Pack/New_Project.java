@@ -1,4 +1,5 @@
 package Pack;
+import Pack.Learning;
 import lejos.hardware.lcd.LCD;
 import lejos.hardware.port.SensorPort;
 import lejos.hardware.sensor.EV3GyroSensor;
@@ -17,26 +18,31 @@ public class New_Project {
 	static boolean isMoving = false;
 	static int rateSectionSpace = 5;
 	static int angleStateSpace = 5;
+	static Learning learning = new Learning();
 
 	
 
 
 	public static void main(String[] args) {
 	
-
+		learning.initQ(100,3);
 		gyroSensor.reset();
 		int i = 0;
-		while(i<60){
+		while(i<900){
 			LCD.drawString("standTime : " + standTime , 1, 0);
 			LCD.refresh();
-			float[] angleRate = getAngleRate();
+			float[] angleRate = getAngleRate();			
+			
 			if(Math.abs(angleRate[0]) > 30 || Math.abs(angleRate[0]) < 10){
 				stopMove();
 			}
 			else{
-				Move(-100);
+			 	int currentState = getEnvironment(angleRate[0],angleRate[1]);
+			 	int previousReward = reward((int)Math.abs(angleRate[0]));
+			 	int action = learning.getAction(currentState,previousReward);
+			 	motorControl(action);
 			}
-			Delay.msDelay(500);
+			Delay.msDelay(100);
 			i++;
 		}
 		System.exit(0);
@@ -78,15 +84,15 @@ public class New_Project {
 			rightMotor.stop();
 		}
 		
-		public static int getEnvironment(int angle, int rate){
-			int rateSection = (rate + 50) / rateSectionSpace;
+		public static int getEnvironment(float angle, float rate){
+			int rateSection = (int)((rate + 50) / rateSectionSpace);
 			if(rateSection >= 100/rateSectionSpace){
 				rateSection = 100/rateSectionSpace - 1;
 			}
 			else if(rateSection < 0){
 				rateSection = 0;
 			}
-			int angleSection = (angle - 10) / angleStateSpace;
+			int angleSection = (int)((angle - 10) / angleStateSpace);
 			if(angleSection >= 20/angleStateSpace){
 				angleSection = 20/angleStateSpace - 1;
 			}
@@ -109,9 +115,11 @@ public class New_Project {
 			}
 		}
 		public static int reward(int angle){
-			int reward = 10 - Math.abs(angle - 20);
+			int reward = 5 - Math.abs(angle - 20);
 			return reward;
 		}
+		
+
 }
 
 
