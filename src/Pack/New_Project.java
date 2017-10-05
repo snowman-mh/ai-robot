@@ -13,7 +13,7 @@ import lejos.robotics.navigation.MovePilot;
 public class New_Project {
 
 
-	static EV3GyroSensor gyroSensor = new EV3GyroSensor(SensorPort.S1);
+	static EV3GyroSensor gyroSensor = new EV3GyroSensor(SensorPort.S4);
 	static long t0; //—§‚¿ã‚ª‚éŠJŽnŽžŠÔ‚ð•Û‘¶
 	static long standTime = 0; //—§‚Á‚Ä‚éŽžŠÔ‚ð•Û‘¶
 	static boolean isMoving = false;
@@ -21,11 +21,12 @@ public class New_Project {
 	static int angleStateSpace = 5;
 	static Learning learning = new Learning();
 	static int numOfAction = 3;
-	static int numOfState = 100;
+	static int numOfState = 200;
 	static int middleAngle = 90;
-	static int moveAngle = 20;
+	static int moveAngle = 40;
 	static MovePilot pilot = new MovePilot(6.88,10.3,Motor.B,Motor.D);
 	static int delayMs = 10;
+	static int preangle=90;
 
 	public static void main(String[] args) {
 
@@ -43,16 +44,16 @@ public class New_Project {
 			}
 			else{
 				if(isMoving = false){
-					//Delay.msDelay(5000);
+					Delay.msDelay(500);
 				}
 				int currentState = getEnvironment(angleRate[0],angleRate[1]);
 				int previousReward = reward((int)Math.abs(angleRate[0]));
 				int action = learning.getAction(currentState,previousReward);
-				LCD.drawString("action : " + action , 1, 4);
+				LCD.drawString("action : " + i , 1, 4);
 				LCD.refresh();
 				motorControl(action);
 			}
-//			Delay.msDelay(delayMs);
+			//Delay.msDelay(delayMs);
 			//Delay.usDelay(100);
 			i++;
 		}
@@ -75,15 +76,13 @@ public class New_Project {
 			t0 = System.currentTimeMillis();
 			isMoving = true;
 		}
-		if(speed > 0){
-			pilot.setAngularSpeed(speed);
-			pilot.forward();
-			//pilot.travel(1,false);
+		if(speed > 0){			//Motor.B.setSpeed(speed);
+			Motor.D.setSpeed(speed);			//Motor.B.forward();
+			Motor.D.forward();
 		}
 		else{
-			pilot.setAngularSpeed(-speed);
-			pilot.backward();
-			//pilot.travel(-1,false);
+			Motor.D.setSpeed(-speed);
+			Motor.D.backward();
 		}
 	}
 
@@ -119,18 +118,20 @@ public class New_Project {
 	public static void motorControl(int action){
 		switch(action){
 		case 0:
-			Move(1000);
+			Move(300);
 			break;
 		case 1:
-			Move(-1000);
+			Move(-300);
 			break;
 		case 2:
 			stopMove();
 			break;
 		}
 	}
+
 	public static int reward(int angle){
-		int reward = - (5^(Math.abs(angle - middleAngle))) + 5;
+		int reward = - (Math.abs(preangle - middleAngle))-(Math.abs(Math.abs(angle) - middleAngle));
+		preangle = Math.abs(angle);
 		LCD.drawString("reward : " + reward , 1, 3);
 		LCD.refresh();
 		return reward;
