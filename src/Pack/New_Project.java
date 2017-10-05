@@ -8,11 +8,10 @@ import lejos.hardware.sensor.SensorMode;
 import lejos.hardware.motor.Motor;
 import lejos.robotics.RegulatedMotor;
 import lejos.utility.Delay;
-import lejos.robotics.navigation.MovePilot;
 
 public class New_Project {
 
-
+	static RegulatedMotor motor = Motor.D;
 	static EV3GyroSensor gyroSensor = new EV3GyroSensor(SensorPort.S4);
 	static long t0; //—§‚¿ã‚ª‚éŠJŽnŽžŠÔ‚ð•Û‘¶
 	static long standTime = 0; //—§‚Á‚Ä‚éŽžŠÔ‚ð•Û‘¶
@@ -23,8 +22,7 @@ public class New_Project {
 	static int numOfAction = 3;
 	static int numOfState = 200;
 	static int middleAngle = 90;
-	static int moveAngle = 40;
-	static MovePilot pilot = new MovePilot(6.88,10.3,Motor.B,Motor.D);
+	static int moveAngle = 40;	
 	static int delayMs = 10;
 	static int preangle=90;
 
@@ -77,12 +75,12 @@ public class New_Project {
 			isMoving = true;
 		}
 		if(speed > 0){			//Motor.B.setSpeed(speed);
-			Motor.D.setSpeed(speed);			//Motor.B.forward();
-			Motor.D.forward();
+			motor.setSpeed(speed);			//Motor.B.forward();
+			motor.forward();
 		}
 		else{
-			Motor.D.setSpeed(-speed);
-			Motor.D.backward();
+			motor.setSpeed(-speed);
+			motor.backward();
 		}
 	}
 
@@ -94,7 +92,7 @@ public class New_Project {
 	}
 
 	public static void stopMove(){
-		pilot.stop();
+		motor.stop();
 	}
 
 	public static int getEnvironment(float angle, float rate){
