@@ -1,4 +1,5 @@
 package Pack;
+
 import Pack.Learning;
 import lejos.hardware.lcd.LCD;
 import lejos.hardware.Button;
@@ -13,8 +14,8 @@ public class New_Project {
 
 	static RegulatedMotor motor = Motor.D;
 	static EV3GyroSensor gyroSensor = new EV3GyroSensor(SensorPort.S4);
-	static long t0; //—§‚¿ã‚ª‚éŠJŽnŽžŠÔ‚ð•Û‘¶
-	static long standTime = 0; //—§‚Á‚Ä‚éŽžŠÔ‚ð•Û‘¶
+	static long t0;
+	static long standTime = 0;
 	static boolean isMoving = false;
 	static int rateSectionSpace = 5;
 	static int angleStateSpace = 5;
@@ -22,99 +23,91 @@ public class New_Project {
 	static int numOfAction = 3;
 	static int numOfState = 200;
 	static int middleAngle = 90;
-	static int moveAngle = 40;	
+	static int moveAngle = 40;
 	static int delayMs = 10;
-	static int preangle=90;
+	static int preangle = 90;
 
 	public static void main(String[] args) {
-
-		learning.initQ(numOfState,numOfAction);
+		learning.initQ(numOfState, numOfAction);
 		gyroSensor.reset();
 		int i = 0;
-		while(Button.ESCAPE.isUp()){
-			LCD.drawString("standTime : " + standTime , 1, 0);
+		while (Button.ESCAPE.isUp()) {
+			LCD.drawString("standTime : " + standTime, 1, 0);
 			LCD.refresh();
-			float[] angleRate = getAngleRate();			
+			float[] angleRate = getAngleRate();
 
-			if(Math.abs(angleRate[0]) > middleAngle + moveAngle/2 || Math.abs(angleRate[0]) < middleAngle - moveAngle/2){
+			if (Math.abs(angleRate[0]) > middleAngle + moveAngle/2 || Math.abs(angleRate[0]) < middleAngle - moveAngle/2) {
 				stopMove();
 				finishMove();
-			}
-			else{
-				if(isMoving = false){
+			} else {
+				if (isMoving = false) {
 					Delay.msDelay(500);
 				}
-				int currentState = getEnvironment(angleRate[0],angleRate[1]);
+				int currentState = getEnvironment(angleRate[0], angleRate[1]);
 				int previousReward = reward((int)Math.abs(angleRate[0]));
-				int action = learning.getAction(currentState,previousReward);
-				LCD.drawString("action : " + i , 1, 4);
+				int action = learning.getAction(currentState, previousReward);
+				LCD.drawString("action : " + i, 1, 4);
 				LCD.refresh();
 				motorControl(action);
 			}
-			//Delay.msDelay(delayMs);
-			//Delay.usDelay(100);
 			i++;
 		}
 		System.exit(0);
-
 	}
 
-	public static float[] getAngleRate(){
+	public static float[] getAngleRate() {
 		SensorMode gyro = gyroSensor.getMode(2);
 		float value[] = new float[gyro.sampleSize()];
 		gyro.fetchSample(value, 0);
-		LCD.drawString("Angle : " + value[0] , 1, 1);
-		LCD.drawString("Rate : " + value[1] , 1, 2);
+		LCD.drawString("Angle : " + value[0], 1, 1);
+		LCD.drawString("Rate : " + value[1], 1, 2);
 		LCD.refresh();
 		return value;
 	}
 
-	public static void Move(int speed){
-		if(isMoving == false){
+	public static void Move(int speed) {
+		if (isMoving == false) {
 			t0 = System.currentTimeMillis();
 			isMoving = true;
 		}
-		if(speed > 0){			//Motor.B.setSpeed(speed);
-			motor.setSpeed(speed);			//Motor.B.forward();
+		if (speed > 0) {
+			motor.setSpeed(speed);
 			motor.forward();
-		}
-		else{
+		} else {
 			motor.setSpeed(-speed);
 			motor.backward();
 		}
 	}
 
-	public static void finishMove(){
-		if(isMoving == true){
+	public static void finishMove() {
+		if (isMoving == true) {
 			standTime = System.currentTimeMillis() - t0;
 			isMoving = false;
 		}
 	}
 
-	public static void stopMove(){
+	public static void stopMove() {
 		motor.stop();
 	}
 
-	public static int getEnvironment(float angle, float rate){
+	public static int getEnvironment(float angle, float rate) {
 		int rateSection = (int)((rate + 50) / rateSectionSpace);
-		if(rateSection >= 100/rateSectionSpace){
-			rateSection = 100/rateSectionSpace - 1;
-		}
-		else if(rateSection < 0){
+		if (rateSection >= 100 / rateSectionSpace) {
+			rateSection = 100 / rateSectionSpace - 1;
+		} else if (rateSection < 0) {
 			rateSection = 0;
 		}
-		int angleSection = (int)((angle - (middleAngle - moveAngle/2)) / angleStateSpace);
-		if(angleSection >= moveAngle/angleStateSpace){
-			angleSection = moveAngle/angleStateSpace - 1;
-		}
-		else if(angleSection < 0){
+		int angleSection = (int)((angle - (middleAngle - moveAngle / 2)) / angleStateSpace);
+		if (angleSection >= moveAngle / angleStateSpace) {
+			angleSection = moveAngle / angleStateSpace - 1;
+		} else if (angleSection < 0) {
 			angleSection = 0;
 		}
 		return rateSection * 5 + angleSection;
 	}
 
-	public static void motorControl(int action){
-		switch(action){
+	public static void motorControl(int action) {
+		switch (action) {
 		case 0:
 			Move(300);
 			break;
@@ -127,16 +120,12 @@ public class New_Project {
 		}
 	}
 
-	public static int reward(int angle){
-		int reward = - (Math.abs(preangle - middleAngle))-(Math.abs(Math.abs(angle) - middleAngle));
+	public static int reward(int angle) {
+		int reward = - (Math.abs(preangle - middleAngle)) - (Math.abs(Math.abs(angle) - middleAngle));
 		preangle = Math.abs(angle);
-		LCD.drawString("reward : " + reward , 1, 3);
+		LCD.drawString("reward : " + reward, 1, 3);
 		LCD.refresh();
 		return reward;
 	}
 
-
 }
-
-
-
