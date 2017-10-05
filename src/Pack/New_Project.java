@@ -40,7 +40,7 @@ public class New_Project {
 				stopMove();
 				finishMove();
 			} else {
-				if (isMoving = false) {
+				if (isMoving == false) {
 					Delay.msDelay(500);
 				}
 				int currentState = getEnvironment(angleRate[0], angleRate[1]);
